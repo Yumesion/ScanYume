@@ -10,6 +10,6 @@ interface BuildConfig {
 
 val Project.Config: BuildConfig get() = object : BuildConfig {
     override val includeTelemetry: Boolean = project.hasProperty("include-telemetry")
-    override val enableUpdater: Boolean = project.hasProperty("enable-updater")
+    override val enableUpdater: Boolean = true // Scan Yume : MAJ auto activée en permanence
     override val includeDependencyInfo: Boolean = project.hasProperty("include-dependency-info")
 }
