@@ -151,6 +151,33 @@ private fun ColumnScope.FilterPage(
             }
         }
     }
+
+    val sources by viewModel.sourcesFlow.collectAsState()
+    when (sources.size) {
+        0 -> {
+            // No sources
+        }
+        1 -> {
+            val (sourceId, sourceName) = sources[0]
+            val filterSource by viewModel.libraryPreferences.filterSource(sourceId).collectAsState()
+            TriStateItem(
+                label = sourceName,
+                state = filterSource,
+                onClick = { viewModel.toggleSource(sourceId) },
+            )
+        }
+        else -> {
+            HeadingItem(MR.strings.action_filter_source)
+            sources.map { (sourceId, sourceName) ->
+                val filterSource by viewModel.libraryPreferences.filterSource(sourceId).collectAsState()
+                TriStateItem(
+                    label = sourceName,
+                    state = filterSource,
+                    onClick = { viewModel.toggleSource(sourceId) },
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -177,6 +204,7 @@ private fun ColumnScope.SortPage(
             MR.strings.action_sort_latest_chapter to LibrarySort.Type.LatestChapter,
             MR.strings.action_sort_chapter_fetch_date to LibrarySort.Type.ChapterFetchDate,
             MR.strings.action_sort_date_added to LibrarySort.Type.DateAdded,
+            MR.strings.action_sort_source to LibrarySort.Type.Source,
             trackerMeanPair,
             MR.strings.action_sort_random to LibrarySort.Type.Random,
         )

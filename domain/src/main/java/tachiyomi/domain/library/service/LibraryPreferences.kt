@@ -105,6 +105,11 @@ class LibraryPreferences(
         TriState.DISABLED,
     )
 
+    fun filterSource(id: Long): Preference<TriState> = preferenceStore.getEnum(
+        "pref_filter_library_source_${id}",
+        TriState.DISABLED,
+    )
+
     // endregion
 
     // region Badges

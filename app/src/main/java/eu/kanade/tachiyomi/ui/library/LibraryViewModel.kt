@@ -113,7 +113,8 @@ class LibraryViewModel(
     private val hasActiveFilters = combine(
         getLibraryItemPreferencesFlow(),
         getTrackingFiltersFlow(),
-    ) { prefs, trackFilters ->
+        getSourceFiltersFlow(),
+    ) { prefs, trackFilters, sourceFilters ->
         listOf(
             prefs.filterDownloaded,
             prefs.filterUnread,
@@ -122,6 +123,7 @@ class LibraryViewModel(
             prefs.filterCompleted,
             prefs.filterIntervalCustom,
             *trackFilters.values.toTypedArray(),
+            *sourceFilters.values.toTypedArray(),
         )
             .any { it != TriState.DISABLED }
     }
@@ -133,12 +135,12 @@ class LibraryViewModel(
         searchQuery.debounce(0.25.seconds),
         getCategories.subscribe(),
         getFavoritesFlow(),
-        combine(getTracksPerManga.subscribe(), getTrackingFiltersFlow(), ::Pair),
+        combine(getTracksPerManga.subscribe(), getTrackingFiltersFlow(), getSourceFiltersFlow(), ::Triple),
         getLibraryItemPreferencesFlow(),
-    ) { searchQuery, categories, favorites, (tracksMap, trackingFilters), itemPreferences ->
+    ) { searchQuery, categories, favorites, (tracksMap, trackingFilters, sourceFilters), itemPreferences ->
         val showSystemCategory = favorites.any { it.libraryManga.categories.contains(0) }
         val filteredFavorites = favorites
-            .applyFilters(tracksMap, trackingFilters, itemPreferences)
+            .applyFilters(tracksMap, trackingFilters, sourceFilters, itemPreferences)
             .let { libraryItems ->
                 if (searchQuery.isNullOrEmpty()) {
                     libraryItems
@@ -204,6 +206,7 @@ class LibraryViewModel(
     private fun List<LibraryItem>.applyFilters(
         trackMap: Map<Long, List<Track>>,
         trackingFilter: Map<Long, TriState>,
+        sourceFilter: Map<Long, TriState>,
         preferences: ItemPreferences,
     ): List<LibraryItem> {
         val downloadedOnly = preferences.globalFilterDownloaded
@@ -260,6 +263,20 @@ class LibraryViewModel(
             !isExcluded && isIncluded
         }
 
+        val excludedSources = sourceFilter.mapNotNull { if (it.value == TriState.ENABLED_NOT) it.key else null }
+        val includedSources = sourceFilter.mapNotNull { if (it.value == TriState.ENABLED_IS) it.key else null }
+        val sourceFiltersIsIgnored = includedSources.isEmpty() && excludedSources.isEmpty()
+
+        val filterFnSource: (LibraryItem) -> Boolean = source@{ item ->
+            if (sourceFiltersIsIgnored) return@source true
+
+            val sourceId = item.libraryManga.manga.source
+            val isExcluded = excludedSources.isNotEmpty() && sourceId in excludedSources
+            val isIncluded = includedSources.isEmpty() || sourceId in includedSources
+
+            !isExcluded && isIncluded
+        }
+
         return fastFilter {
             filterFnDownloaded(it) &&
                 filterFnUnread(it) &&
@@ -267,7 +284,8 @@ class LibraryViewModel(
                 filterFnBookmarked(it) &&
                 filterFnCompleted(it) &&
                 filterFnIntervalCustom(it) &&
-                filterFnTracking(it)
+                filterFnTracking(it) &&
+                filterFnSource(it)
         }
     }
 
@@ -344,6 +362,9 @@ class LibraryViewModel(
                     val item1Score = trackerScores[manga1.id] ?: defaultTrackerScoreSortValue
                     val item2Score = trackerScores[manga2.id] ?: defaultTrackerScoreSortValue
                     item1Score.compareTo(item2Score)
+                }
+                LibrarySort.Type.Source -> {
+                    manga1.sourceName.compareToWithCollator(manga2.sourceName)
                 }
                 LibrarySort.Type.Random -> {
                     error("Why Are We Still Here? Just To Suffer?")
@@ -456,6 +477,26 @@ class LibraryViewModel(
                 combine(filterFlows) { it.toMap() }
             }
         }
+    }
+
+    /**
+     * Flow of source filter preferences, for every source present in the library.
+     *
+     * @return map of source id with the filter value.
+     */
+    private fun getSourceFiltersFlow(): Flow<Map<Long, TriState>> {
+        return getLibraryManga.subscribe()
+            .map { list -> list.map { it.manga.source }.distinct() }
+            .flatMapLatest { sourceIds ->
+                if (sourceIds.isEmpty()) {
+                    flowOf(emptyMap())
+                } else {
+                    val filterFlows = sourceIds.map { id ->
+                        libraryPreferences.filterSource(id).changes().map { id to it }
+                    }
+                    combine(filterFlows) { it.toMap() }
+                }
+            }
     }
 
     /**

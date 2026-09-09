@@ -9,6 +9,7 @@ import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.tachiyomi.data.track.TrackerManager
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.TriState
@@ -20,6 +21,8 @@ import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.library.model.LibraryDisplayMode
 import tachiyomi.domain.library.model.LibrarySort
 import tachiyomi.domain.library.service.LibraryPreferences
+import tachiyomi.domain.manga.interactor.GetLibraryManga
+import tachiyomi.domain.source.service.SourceManager
 import kotlin.time.Duration.Companion.seconds
 
 @Inject
@@ -31,6 +34,8 @@ class LibrarySettingsViewModel(
     private val setDisplayMode: SetDisplayMode,
     private val setSortModeForCategory: SetSortModeForCategory,
     trackerManager: TrackerManager,
+    getLibraryManga: GetLibraryManga,
+    sourceManager: SourceManager,
 ) : ViewModel() {
 
     val trackersFlow = trackerManager.loggedInTrackersFlow()
@@ -38,6 +43,18 @@ class LibrarySettingsViewModel(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
             initialValue = trackerManager.loggedInTrackers(),
+        )
+
+    val sourcesFlow = getLibraryManga.subscribe()
+        .map { list ->
+            list.map { it.manga.source to sourceManager.getOrStub(it.manga.source).name }
+                .distinctBy { it.first }
+                .sortedBy { it.second.lowercase() }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            initialValue = emptyList(),
         )
 
     fun toggleFilter(preference: (LibraryPreferences) -> Preference<TriState>) {
@@ -48,6 +65,10 @@ class LibrarySettingsViewModel(
 
     fun toggleTracker(id: Int) {
         toggleFilter { libraryPreferences.filterTracking(id) }
+    }
+
+    fun toggleSource(id: Long) {
+        toggleFilter { libraryPreferences.filterSource(id) }
     }
 
     fun setDisplayMode(mode: LibraryDisplayMode) {
