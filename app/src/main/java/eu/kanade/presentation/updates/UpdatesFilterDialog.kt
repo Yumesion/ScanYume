@@ -119,6 +119,32 @@ private fun ColumnScope.FilterSheet(
             onCheckedChange = { toggleScanlatorFilter() },
         )
     }
+
+    HorizontalDivider(modifier = Modifier.padding(MaterialTheme.padding.small))
+
+    val groupUpdatesByManga by viewModel.updatesPreferences.groupUpdatesByManga.collectAsState()
+
+    fun toggleGroupByManga() = viewModel.updatesPreferences.groupUpdatesByManga.getAndSet { !it }
+
+    Row(
+        modifier = Modifier
+            .clickable { toggleGroupByManga() }
+            .fillMaxWidth()
+            .padding(horizontal = SettingsItemsPaddings.Horizontal),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = stringResource(MR.strings.action_group_by_manga),
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+
+        Switch(
+            checked = groupUpdatesByManga,
+            onCheckedChange = { toggleGroupByManga() },
+        )
+    }
 }
 
 @Composable

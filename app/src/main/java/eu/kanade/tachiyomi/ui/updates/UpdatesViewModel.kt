@@ -168,8 +168,8 @@ class UpdatesViewModel(
         selectedChapterIds,
         downloadStates,
         dialog,
-        hasActiveFilters,
-    ) { items, selectedIds, downloads, dialog, hasActiveFilters ->
+        combine(hasActiveFilters, updatesPreferences.groupUpdatesByManga.changes(), ::Pair),
+    ) { items, selectedIds, downloads, dialog, (hasActiveFilters, groupUpdatesByManga) ->
         State(
             isLoading = items == null,
             hasActiveFilters = hasActiveFilters,
@@ -190,6 +190,7 @@ class UpdatesViewModel(
                 )
             },
             dialog = dialog,
+            groupUpdatesByManga = groupUpdatesByManga,
         )
     }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), State())
@@ -482,22 +483,35 @@ class UpdatesViewModel(
         val hasActiveFilters: Boolean = false,
         val items: List<UpdatesItem> = listOf(),
         val dialog: Dialog? = null,
+        val groupUpdatesByManga: Boolean = true,
     ) {
         val selected = items.filter { it.selected }
         val selectionMode = selected.isNotEmpty()
 
         fun getUiModel(): List<UpdatesUiModel> {
-            return items
-                .map { UpdatesUiModel.Item(it) }
-                .insertSeparators { before, after ->
-                    val beforeDate = before?.item?.update?.dateFetch?.toLocalDate()
-                    val afterDate = after?.item?.update?.dateFetch?.toLocalDate()
-                    when {
-                        beforeDate != afterDate && afterDate != null -> UpdatesUiModel.Header(afterDate)
-                        // Return null to avoid adding a separator between two items.
-                        else -> null
+            val models: List<UpdatesUiModel> = if (groupUpdatesByManga) {
+                items
+                    .groupBy { it.update.mangaId }
+                    .values
+                    .flatMap { group ->
+                        if (group.size == 1) {
+                            listOf(UpdatesUiModel.Item(group.first()))
+                        } else {
+                            listOf(UpdatesUiModel.Grouped(group))
+                        }
                     }
+            } else {
+                items.map { UpdatesUiModel.Item(it) }
+            }
+            return models.insertSeparators { before, after ->
+                val beforeDate = before?.updateDate()?.toLocalDate()
+                val afterDate = after?.updateDate()?.toLocalDate()
+                when {
+                    beforeDate != afterDate && afterDate != null -> UpdatesUiModel.Header(afterDate)
+                    // Return null to avoid adding a separator between two items.
+                    else -> null
                 }
+            }
         }
     }
 
@@ -527,3 +541,9 @@ data class UpdatesItem(
     val downloadProgressProvider: () -> Int,
     val selected: Boolean = false,
 )
+
+private fun UpdatesUiModel.updateDate(): Long? = when (this) {
+    is UpdatesUiModel.Header -> null
+    is UpdatesUiModel.Item -> item.update.dateFetch
+    is UpdatesUiModel.Grouped -> items.firstOrNull()?.update?.dateFetch
+}

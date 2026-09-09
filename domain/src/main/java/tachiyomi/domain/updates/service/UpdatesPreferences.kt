@@ -49,4 +49,9 @@ class UpdatesPreferences(
         "pref_filter_updates_excluded_categories",
         emptyList(),
     )
+
+    val groupUpdatesByManga: Preference<Boolean> = preferenceStore.getBoolean(
+        "pref_group_updates_by_manga",
+        true,
+    )
 }

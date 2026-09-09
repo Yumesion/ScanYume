@@ -882,6 +882,7 @@
     <string name="relative_time_span_never">Never</string>
     <string name="action_view_upcoming">View Upcoming Updates</string>
     <string name="action_filter_excluded_scanlators">Filter excluded scanlators</string>
+    <string name="action_group_by_manga">Group by manga</string>
     <string name="pref_filter_update_categories_details">Updates in excluded categories will not be shown even if they are also in any included categories.</string>
 
     <!-- Upcoming -->
@@ -978,6 +979,7 @@
     <string name="information_no_downloads">No downloads</string>
     <string name="information_no_recent">No recent updates</string>
     <string name="information_no_recent_manga">Nothing read recently</string>
+    <string name="updates_new_chapters">%1$d new chapters</string>
     <string name="information_empty_library">Your library is empty</string>
     <string name="information_no_manga_category">Category is empty</string>
     <string name="information_no_entries_found">No entries found in this category</string>

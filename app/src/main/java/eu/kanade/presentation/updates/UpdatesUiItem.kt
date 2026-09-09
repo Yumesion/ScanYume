@@ -79,12 +79,14 @@ internal fun LazyListScope.updatesUiItems(
             when (it) {
                 is UpdatesUiModel.Header -> "header"
                 is UpdatesUiModel.Item -> "item"
+                is UpdatesUiModel.Grouped -> "grouped"
             }
         },
         key = {
             when (it) {
                 is UpdatesUiModel.Header -> "updatesHeader-${it.hashCode()}"
                 is UpdatesUiModel.Item -> "updates-${it.item.update.mangaId}-${it.item.update.chapterId}"
+                is UpdatesUiModel.Grouped -> "updates-grouped-${it.items.first().update.mangaId}"
             }
         },
     ) { item ->
@@ -124,6 +126,31 @@ internal fun LazyListScope.updatesUiItems(
                     }.takeIf { !selectionMode },
                     downloadStateProvider = updatesItem.downloadStateProvider,
                     downloadProgressProvider = updatesItem.downloadProgressProvider,
+                )
+            }
+            is UpdatesUiModel.Grouped -> {
+                val updatesItems = item.items
+                val first = updatesItems.first()
+                val selectAll = !first.selected
+                GroupedUpdatesUiItem(
+                    modifier = Modifier.animateItem(),
+                    items = updatesItems,
+                    onLongClick = {
+                        onUpdateSelected(first, selectAll, true)
+                        updatesItems.drop(1).forEach { onUpdateSelected(it, selectAll, false) }
+                    },
+                    onClick = {
+                        when {
+                            selectionMode -> updatesItems.forEach { onUpdateSelected(it, selectAll, false) }
+                            else -> onClickUpdate(first)
+                        }
+                    },
+                    onClickCover = { onClickCover(first) }.takeIf { !selectionMode },
+                    onDownloadChapter = { action: ChapterDownloadAction ->
+                        onDownloadChapter(updatesItems, action)
+                    }.takeIf { !selectionMode },
+                    downloadStateProvider = first.downloadStateProvider,
+                    downloadProgressProvider = first.downloadProgressProvider,
                 )
             }
         }
@@ -223,6 +250,85 @@ private fun UpdatesUiItem(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+            }
+        }
+
+        ChapterDownloadIndicator(
+            enabled = onDownloadChapter != null,
+            modifier = Modifier.padding(start = 4.dp),
+            downloadStateProvider = downloadStateProvider,
+            downloadProgressProvider = downloadProgressProvider,
+            onClick = { onDownloadChapter?.invoke(it) },
+        )
+    }
+}
+
+@Composable
+private fun GroupedUpdatesUiItem(
+    items: List<UpdatesItem>,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onClickCover: (() -> Unit)?,
+    onDownloadChapter: ((ChapterDownloadAction) -> Unit)?,
+    downloadStateProvider: () -> Download.State,
+    downloadProgressProvider: () -> Int,
+    modifier: Modifier = Modifier,
+) {
+    val haptic = LocalHapticFeedback.current
+    val update = items.first().update
+    val hasUnread = items.any { !it.update.read }
+
+    Row(
+        modifier = modifier
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = {
+                    onLongClick()
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                },
+            )
+            .height(56.dp)
+            .padding(horizontal = MaterialTheme.padding.medium),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        MangaCover.Square(
+            modifier = Modifier
+                .padding(vertical = 6.dp)
+                .fillMaxHeight(),
+            data = update.coverData,
+            onClick = onClickCover,
+        )
+
+        Column(
+            modifier = Modifier
+                .padding(horizontal = MaterialTheme.padding.medium)
+                .weight(1f),
+        ) {
+            Text(
+                text = update.mangaTitle,
+                maxLines = 1,
+                style = MaterialTheme.typography.bodyMedium,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (hasUnread) {
+                    Icon(
+                        imageVector = MaterialSymbols.RoundedFilled.Circle,
+                        contentDescription = stringResource(MR.strings.unread),
+                        modifier = Modifier
+                            .height(8.dp)
+                            .padding(end = 4.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                Text(
+                    text = stringResource(MR.strings.updates_new_chapters, items.size),
+                    maxLines = 1,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LocalContentColor.current,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
 

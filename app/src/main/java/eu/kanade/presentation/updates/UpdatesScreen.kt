@@ -234,4 +234,5 @@ private fun UpdatesBottomBar(
 sealed interface UpdatesUiModel {
     data class Header(val date: LocalDate) : UpdatesUiModel
     data class Item(val item: UpdatesItem) : UpdatesUiModel
+    data class Grouped(val items: List<UpdatesItem>) : UpdatesUiModel
 }
