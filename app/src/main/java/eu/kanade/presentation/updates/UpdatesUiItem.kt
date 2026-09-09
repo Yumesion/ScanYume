@@ -277,6 +277,7 @@ private fun GroupedUpdatesUiItem(
     val haptic = LocalHapticFeedback.current
     val update = items.first().update
     val hasUnread = items.any { !it.update.read }
+    val textAlpha = if (hasUnread) 1f else DISABLED_ALPHA
 
     Row(
         modifier = modifier
@@ -308,6 +309,7 @@ private fun GroupedUpdatesUiItem(
                 text = update.mangaTitle,
                 maxLines = 1,
                 style = MaterialTheme.typography.bodyMedium,
+                color = LocalContentColor.current.copy(alpha = textAlpha),
                 overflow = TextOverflow.Ellipsis,
             )
 
@@ -326,7 +328,7 @@ private fun GroupedUpdatesUiItem(
                     text = stringResource(MR.strings.updates_new_chapters, items.size),
                     maxLines = 1,
                     style = MaterialTheme.typography.bodySmall,
-                    color = LocalContentColor.current,
+                    color = LocalContentColor.current.copy(alpha = textAlpha),
                     overflow = TextOverflow.Ellipsis,
                 )
             }
