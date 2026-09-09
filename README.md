@@ -49,4 +49,4 @@ Scan Yume n'héberge aucun contenu. L'application agrège et affiche des liens v
 
 ## Crédits
 
-Basé sur [Mihon](https://github.com/mihonapp/mihon) (fork de Tachiyomi).
+Basé sur [Mihon](https://github.com/mihonapp/mihon) **v0.20.4** (fork de Tachiyomi).
