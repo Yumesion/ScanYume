@@ -45,6 +45,7 @@ import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.ListGroupHeader
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.padding
+import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.selectedBackground
 
@@ -276,7 +277,8 @@ private fun GroupedUpdatesUiItem(
 ) {
     val haptic = LocalHapticFeedback.current
     val update = items.first().update
-    val hasUnread = items.any { !it.update.read }
+    val unreadCount = items.count { !it.update.read }
+    val hasUnread = unreadCount > 0
     val textAlpha = if (hasUnread) 1f else DISABLED_ALPHA
 
     Row(
@@ -325,7 +327,19 @@ private fun GroupedUpdatesUiItem(
                     )
                 }
                 Text(
-                    text = stringResource(MR.strings.updates_new_chapters, items.size),
+                    text = if (hasUnread) {
+                        pluralStringResource(
+                            MR.plurals.notification_chapters_generic,
+                            count = unreadCount,
+                            unreadCount,
+                        )
+                    } else {
+                        pluralStringResource(
+                            MR.plurals.manga_num_chapters,
+                            count = items.size,
+                            items.size.toString(),
+                        )
+                    },
                     maxLines = 1,
                     style = MaterialTheme.typography.bodySmall,
                     color = LocalContentColor.current.copy(alpha = textAlpha),
