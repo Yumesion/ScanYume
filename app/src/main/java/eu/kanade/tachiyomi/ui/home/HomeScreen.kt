@@ -40,7 +40,6 @@ import eu.kanade.tachiyomi.ui.library.LibraryTab
 import eu.kanade.tachiyomi.ui.manga.MangaScreen
 import eu.kanade.tachiyomi.ui.more.MoreTab
 import eu.kanade.tachiyomi.ui.readingqueue.ReadingQueueTab
-import eu.kanade.tachiyomi.ui.updates.UpdatesTab
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -67,7 +66,6 @@ object HomeScreen : Screen() {
     private val TABS = listOf(
         LibraryTab,
         ReadingQueueTab,
-        UpdatesTab,
         HistoryTab,
         BrowseTab,
         MoreTab,
@@ -145,7 +143,6 @@ object HomeScreen : Screen() {
                         tabNavigator.current = when (it) {
                             is Tab.Library -> LibraryTab
                             Tab.ReadingQueue -> ReadingQueueTab
-                            Tab.Updates -> UpdatesTab
                             Tab.History -> HistoryTab
                             is Tab.Browse -> {
                                 if (it.toExtensions) {
@@ -211,18 +208,13 @@ object HomeScreen : Screen() {
         val count by produceState(initialValue = 0, tab) {
             val graph = context.appGraph
             when (tab) {
-                is UpdatesTab -> {
+                is BrowseTab -> {
                     combine(
                         graph.libraryPreferences.newShowUpdatesCount.changes(),
                         graph.libraryPreferences.newUpdatesCount.changes(),
                     ) { show, count ->
                         if (show) count else 0
                     }
-                        .collectLatest { value = it }
-                }
-
-                is BrowseTab -> {
-                    graph.sourcePreferences.extensionUpdatesCount.changes()
                         .collectLatest { value = it }
                 }
 
@@ -233,14 +225,8 @@ object HomeScreen : Screen() {
         return {
             Badge {
                 val desc = when (tab) {
-                    is UpdatesTab -> pluralStringResource(
-                        MR.plurals.notification_chapters_generic,
-                        count = count,
-                        count,
-                    )
-
                     is BrowseTab -> pluralStringResource(
-                        MR.plurals.update_check_notification_ext_updates,
+                        MR.plurals.notification_chapters_generic,
                         count = count,
                         count,
                     )
@@ -272,7 +258,6 @@ object HomeScreen : Screen() {
     sealed interface Tab {
         data class Library(val mangaIdToOpen: Long? = null) : Tab
         data object ReadingQueue : Tab
-        data object Updates : Tab
         data object History : Tab
         data class Browse(val toExtensions: Boolean = false) : Tab
         data class More(val toDownloads: Boolean) : Tab

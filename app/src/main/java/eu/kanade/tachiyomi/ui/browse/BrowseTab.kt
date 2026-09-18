@@ -21,6 +21,7 @@ import eu.kanade.tachiyomi.ui.browse.extension.extensionsTab
 import eu.kanade.tachiyomi.ui.browse.migration.sources.migrateSourceTab
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen
 import eu.kanade.tachiyomi.ui.browse.source.sourcesTab
+import eu.kanade.tachiyomi.ui.browse.updates.updatesTab
 import eu.kanade.tachiyomi.ui.main.MainActivity
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -37,7 +38,7 @@ data object BrowseTab : Tab {
             val isSelected = LocalTabNavigator.current.current.key == key
             val image = AnimatedImageVector.animatedVectorResource(R.drawable.anim_browse_enter)
             return TabOptions(
-                index = 4u,
+                index = 3u,
                 title = stringResource(MR.strings.browse),
                 icon = rememberAnimatedVectorPainter(image, isSelected),
             )
@@ -62,6 +63,7 @@ data object BrowseTab : Tab {
         val extensionsSearchQuery by extensionsViewModel.searchQuery.collectAsStateWithLifecycle()
 
         val tabs = listOf(
+            updatesTab(),
             sourcesTab(),
             extensionsTab(extensionsViewModel),
             migrateSourceTab(),
@@ -78,7 +80,7 @@ data object BrowseTab : Tab {
         )
         LaunchedEffect(Unit) {
             switchToExtensionTabChannel.receiveAsFlow()
-                .collectLatest { state.scrollToPage(1) }
+                .collectLatest { state.scrollToPage(2) }
         }
 
         LaunchedEffect(Unit) {

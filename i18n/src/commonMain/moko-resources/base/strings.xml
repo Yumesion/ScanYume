@@ -35,6 +35,7 @@
     <string name="action_remove_from_reading_queue">Remove from reading queue</string>
     <string name="information_empty_reading_queue">Your reading queue is empty</string>
     <string name="label_sources">Sources</string>
+    <string name="label_discover">Discover</string>
     <string name="label_backup">Backup and restore</string>
     <string name="label_data_storage">Data and storage</string>
     <string name="label_stats">Statistics</string>

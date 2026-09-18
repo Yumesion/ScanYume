@@ -33,8 +33,8 @@ android {
     defaultConfig {
         applicationId = "app.scanyume"
 
-        versionCode = 38
-        versionName = "0.20.13"
+        versionCode = 39
+        versionName = "0.20.14"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getLatestCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getLatestCommitSha()}\"")
