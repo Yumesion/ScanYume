@@ -121,7 +121,7 @@ data object LibraryTab : Tab {
                     onClickSelectAll = viewModel::selectAll,
                     onClickInvertSelection = viewModel::invertSelection,
                     onClickFilter = viewModel::showSettingsDialog,
-                    onClickRefresh = { onClickRefresh(state.activeCategory) },
+                    onClickRefresh = { onClickRefresh(state.activeCategory?.takeIf { it.id != Category.FAVORITES_ID }) },
                     onClickGlobalUpdate = { onClickRefresh(null) },
                     onClickOpenRandomManga = {
                         scope.launch {
@@ -226,6 +226,9 @@ data object LibraryTab : Tab {
                     onDismissRequest = onDismissRequest,
                     viewModel = settingsViewModel,
                     category = state.activeCategory,
+                    labels = state.libraryData.categories.filter { it.id > 0 },
+                    labelFilter = state.labelFilter,
+                    onLabelFilterChange = viewModel::setLabelFilter,
                 )
             }
             is LibraryViewModel.Dialog.ChangeCategory -> {

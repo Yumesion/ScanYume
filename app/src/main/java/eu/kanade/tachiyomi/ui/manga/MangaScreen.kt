@@ -83,6 +83,7 @@ class MangaScreen(
 
         val state by viewModel.state.collectAsStateWithLifecycle()
         val inReadingQueue by viewModel.inReadingQueue.collectAsStateWithLifecycle()
+        val starred by viewModel.starred.collectAsStateWithLifecycle()
 
         if (state is MangaViewModel.State.Loading) {
             LoadingScreen()
@@ -120,6 +121,8 @@ class MangaScreen(
             },
             inReadingQueue = inReadingQueue,
             onReadingQueueClicked = viewModel::toggleReadingQueue,
+            starred = starred,
+            onStarClicked = viewModel::toggleStarred,
             onWebViewClicked = {
                 openMangaInWebView(
                     navigator,

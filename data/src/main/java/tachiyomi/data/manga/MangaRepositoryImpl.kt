@@ -203,6 +203,7 @@ class MangaRepositoryImpl(
                     status = value.status,
                     thumbnailUrl = value.thumbnailUrl,
                     favorite = value.favorite,
+                    starred = value.starred,
                     lastUpdate = value.lastUpdate,
                     nextUpdate = value.nextUpdate,
                     calculateInterval = value.fetchInterval?.toLong(),

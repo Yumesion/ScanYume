@@ -94,6 +94,7 @@ import mihon.icons.materialsymbols.rounded.Schedule
 import mihon.icons.materialsymbols.rounded.Sync
 import mihon.icons.materialsymbols.rounded.Warning
 import mihon.icons.materialsymbols.roundedfilled.Favorite
+import mihon.icons.materialsymbols.roundedfilled.Star
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.findChildOfType
@@ -180,6 +181,8 @@ fun MangaActionRow(
     onAddToLibraryClicked: () -> Unit,
     inReadingQueue: Boolean,
     onReadingQueueClicked: () -> Unit,
+    starred: Boolean,
+    onStarClicked: () -> Unit,
     onWebViewClicked: (() -> Unit)?,
     onWebViewLongClicked: (() -> Unit)?,
     onTrackingClicked: () -> Unit,
@@ -220,6 +223,16 @@ fun MangaActionRow(
             icon = MaterialSymbols.Rounded.FormatListNumbered,
             color = if (inReadingQueue) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
             onClick = onReadingQueueClicked,
+        )
+        MangaActionButton(
+            title = if (starred) {
+                stringResource(MR.strings.in_favorites)
+            } else {
+                stringResource(MR.strings.add_to_favorites)
+            },
+            icon = MaterialSymbols.RoundedFilled.Star,
+            color = if (starred) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
+            onClick = onStarClicked,
         )
         MangaActionButton(
             title = when (nextUpdateDays) {

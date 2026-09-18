@@ -120,6 +120,7 @@ class MangaRestorer(
             status = manga.status,
             thumbnailUrl = manga.thumbnailUrl,
             favorite = manga.favorite,
+            starred = manga.starred,
             lastUpdate = manga.lastUpdate,
             nextUpdate = null,
             calculateInterval = null,

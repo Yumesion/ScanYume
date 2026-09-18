@@ -150,6 +150,8 @@ class MangaViewModel(
 
     val inReadingQueue = MutableStateFlow(false)
 
+    val starred = MutableStateFlow(false)
+
     private val isFavorited: Boolean
         get() = manga?.favorite ?: false
 
@@ -195,6 +197,7 @@ class MangaViewModel(
                 downloadManager.queueState,
             ) { mangaAndChapters, _, _ -> mangaAndChapters }
                 .collectLatest { (manga, chapters) ->
+                    starred.value = manga.starred
                     updateSuccessState {
                         it.copy(
                             manga = manga,
@@ -330,6 +333,14 @@ class MangaViewModel(
             } else {
                 editReadingQueue.add(mangaId)
             }
+        }
+    }
+
+    fun toggleStarred() {
+        val currentlyStarred = starred.value
+        starred.value = !currentlyStarred
+        viewModelScope.launchIO {
+            updateManga.awaitUpdateStarred(mangaId, !currentlyStarred)
         }
     }
 

@@ -4,6 +4,9 @@
     <string name="label_settings">Paramètres</string>
     <string name="label_download_queue">File de téléchargement</string>
     <string name="label_library">Bibliothèque</string>
+    <string name="label_favorites">Favoris</string>
+    <string name="add_to_favorites">Ajouter aux favoris</string>
+    <string name="in_favorites">Dans les favoris</string>
     <string name="label_recent_manga">Historique</string>
     <string name="label_reading_queue">Pile à lire</string>
     <string name="add_to_reading_queue">Ajouter à la pile</string>
@@ -32,10 +35,10 @@
     <string name="action_update_library">Mettre à jour la bibliothèque</string>
     <string name="action_edit">Modifier</string>
     <string name="action_add">Ajouter</string>
-    <string name="action_add_category">Ajouter une catégorie</string>
-    <string name="action_edit_categories">Modifier les catégories</string>
-    <string name="action_rename_category">Renommer la catégorie</string>
-    <string name="action_move_category">Définir la catégorie</string>
+    <string name="action_add_category">Ajouter un label</string>
+    <string name="action_edit_categories">Modifier les labels</string>
+    <string name="action_rename_category">Renommer le label</string>
+    <string name="action_move_category">Définir le label</string>
     <string name="action_edit_cover">Modifier la couverture</string>
     <string name="action_pause">Pause</string>
     <string name="action_previous_chapter">Chapitre précédent</string>
@@ -197,12 +200,12 @@
     <string name="no_more_results">Pas d\'autres résultats</string>
     <string name="snack_categories_deleted">Catégories supprimées</string>
     <string name="action_undo">Annuler</string>
-    <string name="categories">Catégories</string>
+    <string name="categories">Labels</string>
     <string name="manga">Séries de la bibliothèque</string>
     <string name="history">Historique</string>
     <string name="app_not_available">Application indisponible</string>
     <string name="update_weekly">Chaque semaine</string>
-    <string name="default_category">Catégorie par défaut</string>
+    <string name="default_category">Label par défaut</string>
     <string name="download_notifier_download_paused">Téléchargement en pause</string>
     <string name="local_source">Source locale</string>
     <string name="chapter_paused">En pause</string>
@@ -402,6 +405,7 @@
     <string name="action_global_search_query">Rechercher « %1$s » partout</string>
     <string name="action_sort_date_added">Date ajoutée</string>
     <string name="action_sort_source">Source</string>
+    <string name="action_sort_by_label">Trier par label</string>
     <string name="pref_category_reading_mode">Mode de lecture</string>
     <string name="pref_category_theme">Thème</string>
     <string name="no_pinned_sources">Vous n\'avez aucune source épinglée</string>
@@ -527,6 +531,8 @@
     <string name="confirm_lock_change">Authentifiez-vous pour confirmer les changements</string>
     <string name="pref_category_appearance">Apparence</string>
     <string name="label_default">Par défaut</string>
+    <string name="label_all">Tous</string>
+    <string name="label_no_label">Sans label</string>
     <string name="action_track">Suivre</string>
     <string name="getting_started_guide">Guide de démarrage</string>
     <string name="pref_tablet_ui_mode">Mode tablette</string>

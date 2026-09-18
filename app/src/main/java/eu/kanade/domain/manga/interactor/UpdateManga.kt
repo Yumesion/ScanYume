@@ -57,4 +57,10 @@ class UpdateManga(
             MangaUpdate(id = mangaId, favorite = favorite, dateAdded = dateAdded),
         )
     }
+
+    suspend fun awaitUpdateStarred(mangaId: Long, starred: Boolean): Boolean {
+        return mangaRepository.update(
+            MangaUpdate(id = mangaId, starred = starred),
+        )
+    }
 }

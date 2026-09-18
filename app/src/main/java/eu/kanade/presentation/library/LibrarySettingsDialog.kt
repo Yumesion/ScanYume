@@ -18,8 +18,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import eu.kanade.presentation.components.TabbedDialog
 import eu.kanade.presentation.components.TabbedDialogPaddings
 import eu.kanade.tachiyomi.ui.library.LibrarySettingsViewModel
+import eu.kanade.tachiyomi.ui.library.LibraryViewModel
 import eu.kanade.tachiyomi.util.system.isReleaseBuildType
 import mihon.icons.materialsymbols.MaterialSymbols
+import mihon.icons.materialsymbols.rounded.Check
 import mihon.icons.materialsymbols.rounded.Refresh
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.domain.category.model.Category
@@ -43,6 +45,9 @@ fun LibrarySettingsDialog(
     onDismissRequest: () -> Unit,
     viewModel: LibrarySettingsViewModel,
     category: Category?,
+    labels: List<Category>,
+    labelFilter: Long?,
+    onLabelFilterChange: (Long?) -> Unit,
 ) {
     TabbedDialog(
         onDismissRequest = onDismissRequest,
@@ -64,6 +69,9 @@ fun LibrarySettingsDialog(
                 1 -> SortPage(
                     category = category,
                     viewModel = viewModel,
+                    labels = labels,
+                    labelFilter = labelFilter,
+                    onLabelFilterChange = onLabelFilterChange,
                 )
                 2 -> DisplayPage(
                     viewModel = viewModel,
@@ -184,10 +192,34 @@ private fun ColumnScope.FilterPage(
 private fun ColumnScope.SortPage(
     category: Category?,
     viewModel: LibrarySettingsViewModel,
+    labels: List<Category>,
+    labelFilter: Long?,
+    onLabelFilterChange: (Long?) -> Unit,
 ) {
     val trackers by viewModel.trackersFlow.collectAsState()
     val sortingMode = category.sort.type
     val sortDescending = !category.sort.isAscending
+
+    if (labels.isNotEmpty()) {
+        HeadingItem(MR.strings.action_sort_by_label)
+        BaseSortItem(
+            label = stringResource(MR.strings.label_all),
+            icon = MaterialSymbols.Rounded.Check.takeIf { labelFilter == null },
+            onClick = { onLabelFilterChange(null) },
+        )
+        BaseSortItem(
+            label = stringResource(MR.strings.label_no_label),
+            icon = MaterialSymbols.Rounded.Check.takeIf { labelFilter == LibraryViewModel.NO_LABEL_FILTER },
+            onClick = { onLabelFilterChange(LibraryViewModel.NO_LABEL_FILTER) },
+        )
+        labels.forEach { label ->
+            BaseSortItem(
+                label = label.name,
+                icon = MaterialSymbols.Rounded.Check.takeIf { labelFilter == label.id },
+                onClick = { onLabelFilterChange(label.id) },
+            )
+        }
+    }
 
     val options = remember(trackers.isEmpty()) {
         val trackerMeanPair = if (trackers.isNotEmpty()) {

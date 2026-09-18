@@ -13,5 +13,6 @@ data class Category(
 
     companion object {
         const val UNCATEGORIZED_ID = 0L
+        const val FAVORITES_ID = -1L
     }
 }

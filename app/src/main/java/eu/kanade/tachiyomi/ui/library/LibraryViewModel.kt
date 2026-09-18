@@ -103,6 +103,12 @@ class LibraryViewModel(
 
     private val activeCategoryIndex = MutableStateFlow(libraryPreferences.lastUsedCategory.get())
 
+    private val labelFilter = MutableStateFlow<Long?>(null)
+
+    companion object {
+        const val NO_LABEL_FILTER = -1L
+    }
+
     private val displayPreferences = combine(
         libraryPreferences.categoryTabs.changes(),
         libraryPreferences.categoryNumberOfItems.changes(),
@@ -134,13 +140,13 @@ class LibraryViewModel(
     private val library = combine(
         searchQuery.debounce(0.25.seconds),
         getCategories.subscribe(),
-        getFavoritesFlow(),
+        combine(getFavoritesFlow(), labelFilter) { favorites, label -> favorites to label },
         combine(getTracksPerManga.subscribe(), getTrackingFiltersFlow(), getSourceFiltersFlow(), ::Triple),
         getLibraryItemPreferencesFlow(),
-    ) { searchQuery, categories, favorites, (tracksMap, trackingFilters, sourceFilters), itemPreferences ->
-        val showSystemCategory = favorites.any { it.libraryManga.categories.contains(0) }
+    ) { searchQuery, categories, (favorites, labelFilter), (tracksMap, trackingFilters, sourceFilters), itemPreferences ->
         val filteredFavorites = favorites
             .applyFilters(tracksMap, trackingFilters, sourceFilters, itemPreferences)
+            .applyLabelFilter(labelFilter)
             .let { libraryItems ->
                 if (searchQuery.isNullOrEmpty()) {
                     libraryItems
@@ -152,7 +158,6 @@ class LibraryViewModel(
 
         LibraryData(
             isInitialized = true,
-            showSystemCategory = showSystemCategory,
             categories = categories,
             favorites = filteredFavorites,
             tracksMap = tracksMap,
@@ -164,7 +169,7 @@ class LibraryViewModel(
             Library(
                 data = data,
                 groupedFavorites = data.favorites
-                    .applyGrouping(data.categories, data.showSystemCategory)
+                    .applyGrouping(data.categories)
                     .applySort(data.favoritesById, data.tracksMap, data.loggedInTrackerIds),
             )
         }
@@ -175,18 +180,20 @@ class LibraryViewModel(
         library,
         combine(searchQuery, selection, dialog, ::Triple),
         combine(activeCategoryIndex, displayPreferences, hasActiveFilters, ::Triple),
-    ) { library, (searchQuery, selection, dialog), (activeCategoryIndex, display, hasActiveFilters) ->
+        labelFilter,
+    ) { library, (searchQuery, selection, dialog), (activeCategoryIndex, display, hasActiveFilters), labelFilter ->
         State(
             isLoading = library == null,
             searchQuery = searchQuery,
             selection = selection,
             hasActiveFilters = hasActiveFilters,
-            showCategoryTabs = display.showCategoryTabs,
+            showCategoryTabs = true,
             showMangaCount = display.showMangaCount,
             showMangaContinueButton = display.showMangaContinueButton,
             dialog = dialog,
             libraryData = library?.data ?: LibraryData(),
             activeCategoryIndex = activeCategoryIndex,
+            labelFilter = labelFilter,
             groupedFavorites = library?.groupedFavorites.orEmpty(),
         )
     }
@@ -289,18 +296,24 @@ class LibraryViewModel(
         }
     }
 
+    private fun List<LibraryItem>.applyLabelFilter(labelFilter: Long?): List<LibraryItem> {
+        return when (labelFilter) {
+            null -> this
+            NO_LABEL_FILTER -> fastFilter { it.libraryManga.categories.none { id -> id > 0L } }
+            else -> fastFilter { labelFilter in it.libraryManga.categories }
+        }
+    }
+
     private fun List<LibraryItem>.applyGrouping(
         categories: List<Category>,
-        showSystemCategory: Boolean,
     ): Map<Category, List</* LibraryItem */ Long>> {
-        val groupCache = mutableMapOf</* Category */ Long, MutableList</* LibraryItem */ Long>>()
-        forEach { item ->
-            item.libraryManga.categories.forEach { categoryId ->
-                groupCache.getOrPut(categoryId) { mutableListOf() }.add(item.id)
-            }
-        }
-        return categories.filter { showSystemCategory || !it.isSystemCategory }
-            .associateWith { groupCache[it.id]?.toList().orEmpty() }
+        val defaultFlags = categories.firstOrNull { it.id == Category.UNCATEGORIZED_ID }?.flags ?: 0L
+        return linkedMapOf(
+            Category(id = Category.FAVORITES_ID, name = "", order = -2L, flags = defaultFlags) to
+                fastFilter { it.libraryManga.manga.starred }.map { it.id },
+            Category(id = Category.UNCATEGORIZED_ID, name = "", order = -1L, flags = defaultFlags) to
+                map { it.id },
+        )
     }
 
     private fun Map<Category, List</* LibraryItem */ Long>>.applySort(
@@ -755,6 +768,10 @@ class LibraryViewModel(
         searchQuery.update { query }
     }
 
+    fun setLabelFilter(filter: Long?) {
+        labelFilter.update { filter }
+    }
+
     fun updateActiveCategoryIndex(index: Int) {
         activeCategoryIndex.update { index }
         // Coerce here rather than reading it back off [state], which is derived asynchronously
@@ -769,7 +786,7 @@ class LibraryViewModel(
             val mangaList = selectedManga
 
             // Hide the default category because it has a different behavior than the ones from db.
-            val categories = state.value.displayedCategories.filter { it.id != 0L }
+            val categories = state.value.libraryData.categories.filter { it.id > 0 }
 
             // Get indexes of the common categories to preselect.
             val common = getCommonCategories(mangaList)
@@ -848,6 +865,7 @@ class LibraryViewModel(
         val dialog: Dialog? = null,
         val libraryData: LibraryData = LibraryData(),
         private val activeCategoryIndex: Int = 0,
+        val labelFilter: Long? = null,
         private val groupedFavorites: Map<Category, List</* LibraryItem */ Long>> = emptyMap(),
     ) {
         val displayedCategories: List<Category> = groupedFavorites.keys.toList()

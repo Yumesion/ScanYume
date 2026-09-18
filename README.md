@@ -7,7 +7,7 @@ Lecteur de **mangas / webtoons / manhwas** pour Android, fork open source de [Mi
 - Lecture locale de mangas, webtoons, manhwas, comics
 - Lecteur configurable (sens de lecture, multiples visionneuses, réglages avancés)
 - Suivi : MyAnimeList, AniList, Kitsu, MangaUpdates, Bangumi, Shikimori, etc.
-- Catégories pour organiser sa bibliothèque
+- 🏷️ **Labels** pour organiser et filtrer sa bibliothèque
 - Thèmes clair / sombre
 - Mise à jour automatique de la bibliothèque
 - Sauvegardes locales ou cloud
@@ -15,6 +15,7 @@ Lecteur de **mangas / webtoons / manhwas** pour Android, fork open source de [Mi
 - 🗂️ **Filtre + tri de la bibliothèque par extension/source**
 - 📦 **Mises à jour regroupées par œuvre** (une ligne + compteur de nouveaux chapitres)
 - 📚 **Pile à lire** : un onglet dédié pour ranger et trier manuellement tes œuvres à lire (ordre personnalisé + compteur de chapitres restants)
+- ⭐ **Favoris + Labels** : marqueur favori (étoile) sur chaque œuvre, deux vues « Favoris » / « Bibliothèque », et tri par labels (dont « sans label »)
 - 🇫🇷 Extensions de sources françaises (voir [Yume Extensions](https://github.com/Yumesion/extensions))
 
 ## 📥 Téléchargement
@@ -22,8 +23,8 @@ Lecteur de **mangas / webtoons / manhwas** pour Android, fork open source de [Mi
 APK signés disponibles sur la page **Releases** :
 
 - 🔗 **Dernière version** : https://github.com/Yumesion/ScanYume/releases/latest
-- 📲 **APK arm64-v8a** (la plupart des téléphones) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.15-arm64-v8a.apk
-- 📲 **APK universel** (toutes architectures) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.15-universal.apk
+- 📲 **APK arm64-v8a** (la plupart des téléphones) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.16-arm64-v8a.apk
+- 📲 **APK universel** (toutes architectures) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.16-universal.apk
 
 > Nécessite Android 8.0 ou plus récent.
 
