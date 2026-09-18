@@ -82,6 +82,7 @@ class MangaScreen(
             }
 
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val inReadingQueue by viewModel.inReadingQueue.collectAsStateWithLifecycle()
 
         if (state is MangaViewModel.State.Loading) {
             LoadingScreen()
@@ -117,6 +118,8 @@ class MangaScreen(
                 viewModel.toggleFavorite()
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             },
+            inReadingQueue = inReadingQueue,
+            onReadingQueueClicked = viewModel::toggleReadingQueue,
             onWebViewClicked = {
                 openMangaInWebView(
                     navigator,

@@ -14,6 +14,7 @@ Lecteur de **mangas / webtoons / manhwas** pour Android, fork open source de [Mi
 - 🔄 **Mise à jour automatique de l'app** (vérifie les nouvelles releases au démarrage et dans *À propos*)
 - 🗂️ **Filtre + tri de la bibliothèque par extension/source**
 - 📦 **Mises à jour regroupées par œuvre** (une ligne + compteur de nouveaux chapitres)
+- 📚 **Pile à lire** : un onglet dédié pour ranger et trier manuellement tes œuvres à lire (ordre personnalisé + compteur de chapitres restants)
 - 🇫🇷 Extensions de sources françaises (voir [Yume Extensions](https://github.com/Yumesion/extensions))
 
 ## 📥 Téléchargement
@@ -21,8 +22,8 @@ Lecteur de **mangas / webtoons / manhwas** pour Android, fork open source de [Mi
 APK signés disponibles sur la page **Releases** :
 
 - 🔗 **Dernière version** : https://github.com/Yumesion/ScanYume/releases/latest
-- 📲 **APK arm64-v8a** (la plupart des téléphones) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.11-arm64-v8a.apk
-- 📲 **APK universel** (toutes architectures) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.11-universal.apk
+- 📲 **APK arm64-v8a** (la plupart des téléphones) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.12-arm64-v8a.apk
+- 📲 **APK universel** (toutes architectures) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.12-universal.apk
 
 > Nécessite Android 8.0 ou plus récent.
 

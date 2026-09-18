@@ -1,0 +1,6 @@
+CREATE TABLE reading_queue(
+    manga_id INTEGER NOT NULL PRIMARY KEY,
+    position INTEGER NOT NULL
+);
+
+CREATE INDEX reading_queue_position_index ON reading_queue(position);

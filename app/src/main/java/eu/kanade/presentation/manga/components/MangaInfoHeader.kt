@@ -85,6 +85,7 @@ import mihon.icons.materialsymbols.rounded.Close
 import mihon.icons.materialsymbols.rounded.Done
 import mihon.icons.materialsymbols.rounded.DoneAll
 import mihon.icons.materialsymbols.rounded.Favorite
+import mihon.icons.materialsymbols.rounded.FormatListNumbered
 import mihon.icons.materialsymbols.rounded.HourglassEmpty
 import mihon.icons.materialsymbols.rounded.Pause
 import mihon.icons.materialsymbols.rounded.Person
@@ -177,6 +178,8 @@ fun MangaActionRow(
     nextUpdate: Instant?,
     isUserIntervalMode: Boolean,
     onAddToLibraryClicked: () -> Unit,
+    inReadingQueue: Boolean,
+    onReadingQueueClicked: () -> Unit,
     onWebViewClicked: (() -> Unit)?,
     onWebViewLongClicked: (() -> Unit)?,
     onTrackingClicked: () -> Unit,
@@ -207,6 +210,16 @@ fun MangaActionRow(
             color = if (favorite) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
             onClick = onAddToLibraryClicked,
             onLongClick = onEditCategory,
+        )
+        MangaActionButton(
+            title = if (inReadingQueue) {
+                stringResource(MR.strings.in_reading_queue)
+            } else {
+                stringResource(MR.strings.add_to_reading_queue)
+            },
+            icon = MaterialSymbols.Rounded.FormatListNumbered,
+            color = if (inReadingQueue) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
+            onClick = onReadingQueueClicked,
         )
         MangaActionButton(
             title = when (nextUpdateDays) {

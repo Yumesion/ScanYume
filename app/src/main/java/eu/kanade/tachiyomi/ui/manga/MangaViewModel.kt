@@ -81,6 +81,7 @@ import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.manga.interactor.GetDuplicateLibraryManga
 import tachiyomi.domain.manga.interactor.GetMangaWithChapters
 import tachiyomi.domain.manga.interactor.SetMangaChapterFlags
+import tachiyomi.domain.readingqueue.interactor.EditReadingQueue
 import tachiyomi.domain.manga.model.Manga
 import tachiyomi.domain.manga.model.MangaWithChapterCount
 import tachiyomi.domain.manga.model.applyFilter
@@ -117,6 +118,7 @@ class MangaViewModel(
     private val getTracks: GetTracks,
     private val addTracks: AddTracks,
     private val setMangaCategories: SetMangaCategories,
+    private val editReadingQueue: EditReadingQueue,
     private val mangaRepository: MangaRepository,
     private val filterChaptersForDownload: FilterChaptersForDownload,
     private val updateMangaFromRemote: UpdateMangaFromRemote,
@@ -145,6 +147,8 @@ class MangaViewModel(
 
     val source: Source?
         get() = successState?.source
+
+    val inReadingQueue = MutableStateFlow(false)
 
     private val isFavorited: Boolean
         get() = manga?.favorite ?: false
@@ -180,6 +184,10 @@ class MangaViewModel(
     }
 
     init {
+        viewModelScope.launchIO {
+            inReadingQueue.value = editReadingQueue.contains(mangaId)
+        }
+
         viewModelScope.launchIO {
             combine(
                 getMangaAndChapters.subscribe(mangaId, applyScanlatorFilter = true).distinctUntilChanged(),
@@ -312,6 +320,18 @@ class MangaViewModel(
     }
 
     // Manga info - start
+
+    fun toggleReadingQueue() {
+        val currentlyInQueue = inReadingQueue.value
+        inReadingQueue.value = !currentlyInQueue
+        viewModelScope.launchIO {
+            if (currentlyInQueue) {
+                editReadingQueue.remove(mangaId)
+            } else {
+                editReadingQueue.add(mangaId)
+            }
+        }
+    }
 
     fun toggleFavorite() {
         toggleFavorite(

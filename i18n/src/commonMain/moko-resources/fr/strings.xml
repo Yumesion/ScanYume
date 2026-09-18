@@ -5,6 +5,12 @@
     <string name="label_download_queue">File de téléchargement</string>
     <string name="label_library">Bibliothèque</string>
     <string name="label_recent_manga">Historique</string>
+    <string name="label_reading_queue">Pile à lire</string>
+    <string name="add_to_reading_queue">Ajouter à la pile</string>
+    <string name="in_reading_queue">Dans la pile</string>
+    <string name="action_add_to_reading_queue">Ajouter à la pile à lire</string>
+    <string name="action_remove_from_reading_queue">Retirer de la pile à lire</string>
+    <string name="information_empty_reading_queue">Ta pile à lire est vide</string>
     <string name="label_recent_updates">Mises à jour</string>
     <string name="label_backup">Sauvegarder et restaurer</string>
     <string name="action_settings">Paramètres</string>

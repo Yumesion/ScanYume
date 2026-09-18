@@ -115,4 +115,9 @@
         <item quantity="many">%1$d mises à jour échouées</item>
         <item quantity="other">%1$d mises à jour échouées</item>
     </plurals>
+    <plurals name="reading_queue_chapters_left">
+        <item quantity="one">%1$d chapitre restant</item>
+        <item quantity="many">%1$d chapitres restants</item>
+        <item quantity="other">%1$d chapitres restants</item>
+    </plurals>
 </resources>

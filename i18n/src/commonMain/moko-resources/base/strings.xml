@@ -28,6 +28,12 @@
     <string name="label_recent_updates">Updates</string>
     <string name="label_upcoming">Upcoming</string>
     <string name="label_recent_manga">History</string>
+    <string name="label_reading_queue">Reading queue</string>
+    <string name="add_to_reading_queue">Add to pile</string>
+    <string name="in_reading_queue">In pile</string>
+    <string name="action_add_to_reading_queue">Add to reading queue</string>
+    <string name="action_remove_from_reading_queue">Remove from reading queue</string>
+    <string name="information_empty_reading_queue">Your reading queue is empty</string>
     <string name="label_sources">Sources</string>
     <string name="label_backup">Backup and restore</string>
     <string name="label_data_storage">Data and storage</string>

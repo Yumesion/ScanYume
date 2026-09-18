@@ -1,0 +1,41 @@
+CREATE TABLE reading_queue(
+    manga_id INTEGER NOT NULL PRIMARY KEY,
+    position INTEGER NOT NULL
+);
+
+CREATE INDEX reading_queue_position_index ON reading_queue(position);
+
+insert:
+INSERT OR IGNORE INTO reading_queue(manga_id, position)
+VALUES (:mangaId, (SELECT coalesce(max(position), -1) + 1 FROM reading_queue));
+
+delete:
+DELETE FROM reading_queue
+WHERE manga_id = :mangaId;
+
+updatePosition:
+UPDATE reading_queue
+SET position = :position
+WHERE manga_id = :mangaId;
+
+contains:
+SELECT count(*)
+FROM reading_queue
+WHERE manga_id = :mangaId;
+
+getQueue:
+SELECT
+    RQ.manga_id,
+    M.title,
+    M.thumbnail_url,
+    M.favorite,
+    coalesce(C.total, 0) AS totalCount,
+    coalesce(C.readCount, 0) AS readCount
+FROM reading_queue RQ
+INNER JOIN mangas M ON M._id = RQ.manga_id
+LEFT JOIN (
+    SELECT chapters.manga_id, count(*) AS total, sum(read) AS readCount
+    FROM chapters
+    GROUP BY chapters.manga_id
+) AS C ON C.manga_id = M._id
+ORDER BY RQ.position ASC;
