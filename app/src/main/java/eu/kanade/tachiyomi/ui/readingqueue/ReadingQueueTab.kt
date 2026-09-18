@@ -53,14 +53,23 @@ data object ReadingQueueTab : Tab {
             onMove = viewModel::move,
             onRemove = viewModel::remove,
             onRefresh = {
-                val started = LibraryUpdateJob.startNow(context.workManager, null)
-                scope.launch {
-                    val msg = if (started) {
-                        MR.strings.updating_library
-                    } else {
-                        MR.strings.update_already_running
+                if (state.items.isEmpty()) {
+                    scope.launch {
+                        viewModel.snackbarHostState.showSnackbar(
+                            context.stringResource(MR.strings.information_empty_reading_queue),
+                        )
                     }
-                    viewModel.snackbarHostState.showSnackbar(context.stringResource(msg))
+                } else {
+                    val mangaIds = state.items.map { it.mangaId }.toLongArray()
+                    val started = LibraryUpdateJob.startNow(context.workManager, mangaIds = mangaIds)
+                    scope.launch {
+                        val msg = if (started) {
+                            MR.strings.updating_library
+                        } else {
+                            MR.strings.update_already_running
+                        }
+                        viewModel.snackbarHostState.showSnackbar(context.stringResource(msg))
+                    }
                 }
             },
         )

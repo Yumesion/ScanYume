@@ -103,6 +103,8 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
 
     private var mangaToUpdate: List<LibraryManga> = mutableListOf()
 
+    private var updatingSpecificManga = false
+
     override suspend fun doWork(): Result {
         graph.inject(this)
 
@@ -125,7 +127,9 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         libraryPreferences.lastUpdatedTimestamp.set(Clock.System.now().toEpochMilliseconds())
 
         val categoryId = inputData.getLong(KEY_CATEGORY, -1L)
-        addMangaToQueue(categoryId)
+        val mangaIds = inputData.getLongArray(KEY_MANGA_IDS)
+        updatingSpecificManga = mangaIds != null
+        addMangaToQueue(categoryId, mangaIds)
 
         return withIOContext {
             try {
@@ -162,7 +166,30 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
      *
      * @param categoryId the ID of the category to update, or -1 if no category specified.
      */
-    private suspend fun addMangaToQueue(categoryId: Long) {
+    private suspend fun addMangaToQueue(categoryId: Long, mangaIds: LongArray?) {
+        if (mangaIds != null) {
+            val toUpdate = ArrayList<LibraryManga>(mangaIds.size)
+            for (id in mangaIds) {
+                val manga = getManga.await(id) ?: continue
+                toUpdate.add(
+                    LibraryManga(
+                        manga = manga,
+                        categories = emptyList(),
+                        totalChapters = 0,
+                        readCount = 0,
+                        bookmarkCount = 0,
+                        latestUpload = 0,
+                        chapterFetchedAt = 0,
+                        lastRead = 0,
+                    ),
+                )
+            }
+            mangaToUpdate = toUpdate.sortedBy { it.manga.title }
+
+            notifier.showQueueSizeWarningNotificationIfNeeded(mangaToUpdate)
+            return
+        }
+
         val libraryManga = getLibraryManga.await()
 
         val listToUpdate = if (categoryId != -1L) {
@@ -264,7 +291,7 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
                                 ensureActive()
 
                                 // Don't continue to update if manga is not in library
-                                if (getManga.await(manga.id)?.favorite != true) {
+                                if (!updatingSpecificManga && getManga.await(manga.id)?.favorite != true) {
                                     return@forEach
                                 }
 
@@ -353,7 +380,7 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         )
             .getOrThrow()
 
-        return if (update.manga.favorite) update.newChapters else emptyList()
+        return if (updatingSpecificManga || update.manga.favorite) update.newChapters else emptyList()
     }
 
     private suspend fun withUpdateNotification(
@@ -428,6 +455,8 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
          */
         private const val KEY_CATEGORY = "category"
 
+        private const val KEY_MANGA_IDS = "manga_ids"
+
         fun setupTask(
             context: Context,
             prefInterval: Int? = null,
@@ -483,15 +512,23 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         fun startNow(
             workManager: WorkManager,
             category: Category? = null,
+            mangaIds: LongArray? = null,
         ): Boolean {
             if (workManager.isRunning(TAG)) {
                 // Already running either as a scheduled or manual job
                 return false
             }
 
-            val inputData = workDataOf(
-                KEY_CATEGORY to category?.id,
-            )
+            val inputData = if (mangaIds != null) {
+                workDataOf(
+                    KEY_CATEGORY to category?.id,
+                    KEY_MANGA_IDS to mangaIds,
+                )
+            } else {
+                workDataOf(
+                    KEY_CATEGORY to category?.id,
+                )
+            }
             val request = OneTimeWorkRequestBuilder<LibraryUpdateJob>()
                 .addTag(TAG)
                 .addTag(WORK_NAME_MANUAL)
