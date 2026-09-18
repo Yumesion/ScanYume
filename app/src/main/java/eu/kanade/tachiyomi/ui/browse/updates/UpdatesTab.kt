@@ -10,6 +10,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.TabContent
 import eu.kanade.presentation.updates.UpdateScreen
 import eu.kanade.presentation.updates.UpdatesDeleteConfirmationDialog
@@ -23,8 +24,13 @@ import eu.kanade.tachiyomi.ui.updates.UpdatesViewModel
 import eu.kanade.tachiyomi.ui.updates.UpdatesViewModel.Event
 import kotlinx.coroutines.flow.collectLatest
 import mihon.feature.upcoming.UpcomingScreen
+import mihon.icons.materialsymbols.MaterialSymbols
+import mihon.icons.materialsymbols.rounded.CalendarMonth
+import mihon.icons.materialsymbols.rounded.FilterList
+import mihon.icons.materialsymbols.rounded.Refresh
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.i18n.stringResource
 
 @Composable
 fun Screen.updatesTab(): TabContent {
@@ -36,7 +42,23 @@ fun Screen.updatesTab(): TabContent {
 
     return TabContent(
         titleRes = MR.strings.label_recent_updates,
-        fullScreen = true,
+        actions = listOf(
+            AppBar.Action(
+                title = stringResource(MR.strings.action_filter),
+                icon = MaterialSymbols.Rounded.FilterList,
+                onClick = { viewModel.showFilterDialog() },
+            ),
+            AppBar.Action(
+                title = stringResource(MR.strings.action_view_upcoming),
+                icon = MaterialSymbols.Rounded.CalendarMonth,
+                onClick = { navigator.push(UpcomingScreen()) },
+            ),
+            AppBar.Action(
+                title = stringResource(MR.strings.action_update_library),
+                icon = MaterialSymbols.Rounded.Refresh,
+                onClick = { viewModel.updateLibrary() },
+            ),
+        ),
         content = { _, _ ->
             UpdateScreen(
                 state = state,
@@ -58,6 +80,7 @@ fun Screen.updatesTab(): TabContent {
                 onCalendarClicked = { navigator.push(UpcomingScreen()) },
                 onFilterClicked = viewModel::showFilterDialog,
                 hasActiveFilters = state.hasActiveFilters,
+                showAppBar = false,
             )
 
             val onDismissDialog = { viewModel.setDialog(null) }

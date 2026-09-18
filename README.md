@@ -22,8 +22,8 @@ Lecteur de **mangas / webtoons / manhwas** pour Android, fork open source de [Mi
 APK signés disponibles sur la page **Releases** :
 
 - 🔗 **Dernière version** : https://github.com/Yumesion/ScanYume/releases/latest
-- 📲 **APK arm64-v8a** (la plupart des téléphones) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.14-arm64-v8a.apk
-- 📲 **APK universel** (toutes architectures) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.14-universal.apk
+- 📲 **APK arm64-v8a** (la plupart des téléphones) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.15-arm64-v8a.apk
+- 📲 **APK universel** (toutes architectures) : https://github.com/Yumesion/ScanYume/releases/latest/download/ScanYume-v0.20.15-universal.apk
 
 > Nécessite Android 8.0 ou plus récent.
 
