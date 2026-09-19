@@ -29,7 +29,9 @@ import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.manga.components.MangaCover
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.rounded.Close
+import mihon.icons.materialsymbols.rounded.DragHandle
 import mihon.icons.materialsymbols.rounded.Refresh
+import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import tachiyomi.domain.readingqueue.model.ReadingQueueItem
@@ -130,7 +132,7 @@ private fun ReadingQueueContent(
 }
 
 @Composable
-private fun ReadingQueueItemRow(
+private fun ReorderableCollectionItemScope.ReadingQueueItemRow(
     item: ReadingQueueItem,
     onClick: () -> Unit,
     onRemove: () -> Unit,
@@ -146,6 +148,13 @@ private fun ReadingQueueItemRow(
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            imageVector = MaterialSymbols.Rounded.DragHandle,
+            contentDescription = null,
+            modifier = Modifier
+                .padding(end = MaterialTheme.padding.small)
+                .draggableHandle(),
+        )
         MangaCover.Book(
             data = item.thumbnailUrl,
             modifier = Modifier.width(48.dp),
